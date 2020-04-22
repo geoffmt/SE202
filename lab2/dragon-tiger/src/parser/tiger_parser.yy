@@ -81,6 +81,7 @@ using utils::nl;
 
 %token <Symbol> ID "id"
 %token <Symbol> STRING "string"
+%token <int> INT "integer"
 
 // Declare the nonterminals types
 
