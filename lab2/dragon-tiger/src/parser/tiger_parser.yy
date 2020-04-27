@@ -91,7 +91,7 @@ using utils::nl;
 %type <Decl *> decl funcDecl varDecl;
 %type <std::vector<Decl *>> decls;
 %type <Expr *> expr stringExpr intExpr seqExpr callExpr opExpr negExpr
-            assignExpr whileExpr forExpr breakExpr letExpr var;
+            assignExpr whileExpr ifExpr forExpr breakExpr letExpr var;
 
 
 %type <std::vector<Expr *>> exprs nonemptyexprs;
@@ -129,6 +129,7 @@ expr: stringExpr { $$ = $1; }
    | negExpr { $$ = $1; }
    | assignExpr { $$ = $1; }
    | whileExpr { $$ = $1; }
+   | ifExpr { $$ = $1; }
    | forExpr { $$ = $1; }
    | breakExpr { $$ = $1; }
    | letExpr { $$ = $1; }
@@ -196,6 +197,10 @@ assignExpr: ID ASSIGN expr
 ;
 
 whileExpr: WHILE expr DO expr { $$ = new WhileLoop(@1, $2, $4); }
+;
+
+ifExpr: IF expr THEN expr ELSE expr { $$ = new IfThenElse(@1, $2, $4, $6); }
+      | IF expr THEN expr { $$ = new IfThenElse(@1, $2, $4, new Sequence(@4, std::vector<Expr *>())); }
 ;
 
 forExpr: FOR ID ASSIGN expr TO expr DO expr
