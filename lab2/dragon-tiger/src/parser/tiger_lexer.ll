@@ -91,7 +91,7 @@ var      return yy::tiger_parser::make_VAR(loc);
 {id}       return yy::tiger_parser::make_ID(Symbol(yytext), loc);
 
 {int} {
-  int integ = strtol(yytext,NULL,0);
+  long integ = strtol(yytext,NULL,0);
   if (integ > TIGER_INT_MAX)
     utils::error(loc, "Integer is too big");
   else 
