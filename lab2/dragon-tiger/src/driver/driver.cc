@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
   options.add_options()
   ("help,h", "describe arguments")
   ("dump-ast", "dump the parsed AST")
+  ("eval,e", "eval the parsed AST")
   ("trace-parser", "enable parser traces")
   ("trace-lexer", "enable lexer traces")
   ("verbose,v", "be verbose")

@@ -28,7 +28,8 @@ int ASTEvaluator::visit(const BinaryOperator &binop)
     return left_op * right_op;
   case o_divide:
     return left_op / right_op;
-    cases o_eq : return left_op == right_op;
+  case o_eq : 
+    return left_op == right_op;
   case o_neq:
     return left_op != right_op;
   case o_lt:
@@ -46,6 +47,7 @@ int ASTEvaluator::visit(const BinaryOperator &binop)
 
 int ASTEvaluator::visit(const Sequence &seqExpr)
 {
+  int value;
   const auto exprs = seqExpr.get_exprs();
   if (exprs.cbegin() == exprs.cend())
   {
@@ -70,16 +72,16 @@ int ASTEvaluator::visit(const Identifier &id)
 
 int ASTEvaluator::visit(const IfThenElse &ite)
 {
-  cond = ite.get_condition().accept(*this);
-  then_part = ite.get_then_part().accept(*this);
-  else_part = ite.get_else_part().accept(*this);
+  int cond = ite.get_condition().accept(*this);
+  int then_part = ite.get_then_part().accept(*this);
+  int else_part = ite.get_else_part().accept(*this);
   if (cond)
   {
     return then_part;
   }
   else
   {
-    return els;
+    return else_part;
   }
 }
 
