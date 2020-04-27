@@ -4,6 +4,7 @@
 #include "../ast/ast_dumper.hh"
 #include "../parser/parser_driver.hh"
 #include "../utils/errors.hh"
+#include "../ast/ast_evaluator.hh"
 
 int main(int argc, char **argv) {
   std::vector<std::string> input_files;
@@ -48,6 +49,13 @@ int main(int argc, char **argv) {
     parser_driver.result_ast->accept(dumper);
     dumper.nl();
   }
+
+  if (vm.count("eval")) {
+    ast::ASTEvaluator evaluator = ast::ASTEvaluator();
+    int result = parser_driver.result_ast->accept(evaluator);
+    std::cout << result << std::endl;
+  }
+  
   delete parser_driver.result_ast;
   return 0;
 }
