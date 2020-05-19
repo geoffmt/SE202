@@ -148,30 +148,16 @@ void Binder::visit(Let &let)
   std::vector<Decl *> &decls = let.get_decls();
   Sequence &seq = let.get_sequence();
 
-  // *it not working with enter(), need to use dynamic cast
+  // seg fault problem
 
   for (auto it = decls.begin(); it != decls.end(); it++)
   {
-    std::vector<FunDecl *> funDecls;
-    FunDecl *decl = dynamic_cast<FunDecl *>(*it);
-    if (!*it)
-    {
-      (*it)->accept(*this);
-    }
-    else
-    {
-      enter(**it);
-      funDecls.push_back(decl);
-    }
-
-    for (FunDecl *decl : funDecls)
-    {
-      decl->accept(*this);
-    }
+    (*it)->accept(*this);
   }
 
   seq.accept(*this);
   pop_scope();
+
 }
 
 void Binder::visit(Identifier &id)
