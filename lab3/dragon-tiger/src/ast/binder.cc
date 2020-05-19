@@ -147,16 +147,29 @@ void Binder::visit(Let &let)
 
   std::vector<Decl *> &decls = let.get_decls();
   Sequence &seq = let.get_sequence();
-
+  std::vector<FunDecl *> funDecls;
 
   for (auto it = decls.begin(); it != decls.end(); it++)
   {
-    (*it)->accept(*this);
+    FunDecl *decl = dynamic_cast<FunDecl *>(*it);
+    if (!decl)
+    {
+      (*it)->accept(*this);
+    }
+
+    else
+    {
+      enter(*decl);
+      funDecls.push_back(decl);
+    }
   }
 
+  for (FunDecl *decl : funDecls)
+  {
+    decl->accept(*this);
+  }
   seq.accept(*this);
   pop_scope();
-
 }
 
 void Binder::visit(Identifier &id)
@@ -166,7 +179,7 @@ void Binder::visit(Identifier &id)
   // An identifier is used but not declared
   if (!decl)
   {
-    error(id.loc, "Identifier declaration not found for" + std::string(id.name));
+    error(id.loc, "Identifier declaration not found for " + std::string(id.name));
   }
   id.set_decl(decl);
 }
@@ -215,6 +228,14 @@ void Binder::visit(FunDecl &decl)
 }
 
 void Binder::visit(FunCall &call) {
+
+  FunDecl * decl = dynamic_cast<FunDecl *>(&find(call.loc, call.func_name));
+  if (!decl) {
+    error(call.loc, "Function declaration not found for " + std::string(call.func_name));
+  }
+
+  call.set_decl(decl);
+
 }
 
 void Binder::visit(WhileLoop &loop) {
