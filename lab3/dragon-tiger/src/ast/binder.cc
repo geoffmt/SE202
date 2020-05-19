@@ -148,7 +148,6 @@ void Binder::visit(Let &let)
   std::vector<Decl *> &decls = let.get_decls();
   Sequence &seq = let.get_sequence();
 
-  // seg fault problem
 
   for (auto it = decls.begin(); it != decls.end(); it++)
   {
@@ -174,6 +173,9 @@ void Binder::visit(Identifier &id)
 
 void Binder::visit(IfThenElse &ite)
 {
+  ite.get_condition().accept(*this);
+  ite.get_then_part().accept(*this);
+  ite.get_else_part().accept(*this);
 }
 
 void Binder::visit(VarDecl &decl)
