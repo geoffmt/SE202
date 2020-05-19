@@ -124,28 +124,105 @@ void Binder::visit(IntegerLiteral &literal) {
 void Binder::visit(StringLiteral &literal) {
 }
 
-void Binder::visit(BinaryOperator &op) {
+void Binder::visit(BinaryOperator &op)
+{
+  op.get_left().accept(*this);
+  op.get_right().accept(*this);
 }
 
-void Binder::visit(Sequence &seq) {
+void Binder::visit(Sequence &seq)
+{
+
+  std::vector<Expr *> exprs = seq.get_exprs();
+
+  for (Expr *expr : exprs)
+  {
+    expr->accept(*this);
+  }
 }
 
-void Binder::visit(Let &let) {
+void Binder::visit(Let &let)
+{
+  push_scope();
+
+  std::vector<Decl *> &decls = let.get_decls();
+  Sequence &seq = let.get_sequence();
+
+  // *it not working with enter(), need to use dynamic cast
+
+  for (auto it = decls.begin(); it != decls.end(); it++)
+  {
+    std::vector<FunDecl *> funDecls;
+    FunDecl *decl = dynamic_cast<FunDecl *>(*it);
+    if (!*it)
+    {
+      (*it)->accept(*this);
+    }
+    else
+    {
+      enter(**it);
+      funDecls.push_back(decl);
+    }
+
+    for (FunDecl *decl : funDecls)
+    {
+      decl->accept(*this);
+    }
+  }
+
+  seq.accept(*this);
+  pop_scope();
 }
 
-void Binder::visit(Identifier &id) {
+void Binder::visit(Identifier &id)
+{
+  VarDecl *decl = dynamic_cast<VarDecl *>(&find(id.loc, id.name)); // Finds the declaration
+
+  // An identifier is used but not declared
+  if (!decl)
+  {
+    error(id.loc, "Identifier declaration not found for" + std::string(id.name));
+  }
+  id.set_decl(decl);
 }
 
-void Binder::visit(IfThenElse &ite) {
+void Binder::visit(IfThenElse &ite)
+{
 }
 
-void Binder::visit(VarDecl &decl) {
+void Binder::visit(VarDecl &decl)
+{
+
+  optional<Expr &> expr = decl.get_expr(); // optional because get_expr() is declared this way
+  if (expr)
+  {
+    expr.value().accept(*this);
+  }
+  enter(decl);
 }
 
-void Binder::visit(FunDecl &decl) {
+void Binder::visit(FunDecl &decl)
+{
   set_parent_and_external_name(decl);
   functions.push_back(&decl);
-  /* ... put your code here ... */
+
+  push_scope(); // we go in
+  std::vector<VarDecl *> &params = decl.get_params();
+
+  // accept parameter of function
+  for (VarDecl *decl : params)
+  {
+    decl->accept(*this);
+  }
+
+  // accept expr of function
+  optional<Expr &> expr = decl.get_expr();
+  if (expr)
+  {
+    expr.value().accept(*this);
+  }
+
+  pop_scope(); // we go out
   functions.pop_back();
 }
 

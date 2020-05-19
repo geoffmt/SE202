@@ -23,6 +23,7 @@ AC_CONFIG_FILES([Makefile
                  src/ast/Makefile
                  src/driver/Makefile
                  src/utils/Makefile
+                 src/parser/Makefile
                 ])
 
 AC_OUTPUT

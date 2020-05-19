@@ -1,4 +1,4 @@
-// A Bison parser, made by GNU Bison 3.5.4.
+// A Bison parser, made by GNU Bison 3.5.1.
 
 // Skeleton interface for Bison LALR(1) parsers in C++
 
@@ -400,15 +400,15 @@ namespace yy {
 
       // program
       // expr
-      // intExpr
       // stringExpr
+      // intExpr
       // var
       // callExpr
       // negExpr
       // opExpr
       // assignExpr
-      // ifExpr
       // whileExpr
+      // ifExpr
       // forExpr
       // breakExpr
       // letExpr
@@ -426,7 +426,7 @@ namespace yy {
       char dummy5[sizeof (boost::optional<Symbol>)];
 
       // "integer"
-      char dummy6[sizeof (int32_t)];
+      char dummy6[sizeof (int)];
 
       // decls
       char dummy7[sizeof (std::vector<Decl *>)];
@@ -646,13 +646,13 @@ namespace yy {
       {}
 #endif
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int32_t&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const int32_t& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const int& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -728,15 +728,15 @@ switch (yytype)
 
       case 43: // program
       case 45: // expr
-      case 48: // intExpr
-      case 49: // stringExpr
+      case 48: // stringExpr
+      case 49: // intExpr
       case 50: // var
       case 51: // callExpr
       case 52: // negExpr
       case 53: // opExpr
       case 54: // assignExpr
-      case 55: // ifExpr
-      case 56: // whileExpr
+      case 55: // whileExpr
+      case 56: // ifExpr
       case 57: // forExpr
       case 58: // breakExpr
       case 59: // letExpr
@@ -758,7 +758,7 @@ switch (yytype)
         break;
 
       case 39: // "integer"
-        value.template destroy< int32_t > ();
+        value.template destroy< int > ();
         break;
 
       case 67: // decls
@@ -876,13 +876,13 @@ switch (yytype)
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int32_t v, location_type l)
+      symbol_type (int tok, int v, location_type l)
         : super_type(token_type (tok), std::move (v), std::move (l))
       {
         YY_ASSERT (tok == token::TOK_INT);
       }
 #else
-      symbol_type (int tok, const int32_t& v, const location_type& l)
+      symbol_type (int tok, const int& v, const location_type& l)
         : super_type(token_type (tok), v, l)
       {
         YY_ASSERT (tok == token::TOK_INT);
@@ -1483,14 +1483,14 @@ switch (yytype)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_INT (int32_t v, location_type l)
+      make_INT (int v, location_type l)
       {
         return symbol_type (token::TOK_INT, std::move (v), std::move (l));
       }
 #else
       static
       symbol_type
-      make_INT (const int32_t& v, const location_type& l)
+      make_INT (const int& v, const location_type& l)
       {
         return symbol_type (token::TOK_INT, v, l);
       }
@@ -1911,15 +1911,15 @@ switch (yytype)
 
       case 43: // program
       case 45: // expr
-      case 48: // intExpr
-      case 49: // stringExpr
+      case 48: // stringExpr
+      case 49: // intExpr
       case 50: // var
       case 51: // callExpr
       case 52: // negExpr
       case 53: // opExpr
       case 54: // assignExpr
-      case 55: // ifExpr
-      case 56: // whileExpr
+      case 55: // whileExpr
+      case 56: // ifExpr
       case 57: // forExpr
       case 58: // breakExpr
       case 59: // letExpr
@@ -1941,7 +1941,7 @@ switch (yytype)
         break;
 
       case 39: // "integer"
-        value.move< int32_t > (std::move (that.value));
+        value.move< int > (std::move (that.value));
         break;
 
       case 67: // decls
@@ -1983,15 +1983,15 @@ switch (yytype)
 
       case 43: // program
       case 45: // expr
-      case 48: // intExpr
-      case 49: // stringExpr
+      case 48: // stringExpr
+      case 49: // intExpr
       case 50: // var
       case 51: // callExpr
       case 52: // negExpr
       case 53: // opExpr
       case 54: // assignExpr
-      case 55: // ifExpr
-      case 56: // whileExpr
+      case 55: // whileExpr
+      case 56: // ifExpr
       case 57: // forExpr
       case 58: // breakExpr
       case 59: // letExpr
@@ -2013,7 +2013,7 @@ switch (yytype)
         break;
 
       case 39: // "integer"
-        value.copy< int32_t > (YY_MOVE (that.value));
+        value.copy< int > (YY_MOVE (that.value));
         break;
 
       case 67: // decls
@@ -2062,15 +2062,15 @@ switch (yytype)
 
       case 43: // program
       case 45: // expr
-      case 48: // intExpr
-      case 49: // stringExpr
+      case 48: // stringExpr
+      case 49: // intExpr
       case 50: // var
       case 51: // callExpr
       case 52: // negExpr
       case 53: // opExpr
       case 54: // assignExpr
-      case 55: // ifExpr
-      case 56: // whileExpr
+      case 55: // whileExpr
+      case 56: // ifExpr
       case 57: // forExpr
       case 58: // breakExpr
       case 59: // letExpr
@@ -2092,7 +2092,7 @@ switch (yytype)
         break;
 
       case 39: // "integer"
-        value.move< int32_t > (YY_MOVE (s.value));
+        value.move< int > (YY_MOVE (s.value));
         break;
 
       case 67: // decls

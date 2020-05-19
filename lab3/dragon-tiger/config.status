@@ -393,7 +393,7 @@ on `(hostname || uname -n) 2>/dev/null | sed 1q`
 "
 
 # Files that config.status was made for.
-config_files=" Makefile src/Makefile src/ast/Makefile src/driver/Makefile src/utils/Makefile"
+config_files=" Makefile src/Makefile src/ast/Makefile src/driver/Makefile src/utils/Makefile src/parser/Makefile"
 config_headers=" config.h"
 config_commands=" depfiles"
 
@@ -553,6 +553,7 @@ do
     "src/ast/Makefile") CONFIG_FILES="$CONFIG_FILES src/ast/Makefile" ;;
     "src/driver/Makefile") CONFIG_FILES="$CONFIG_FILES src/driver/Makefile" ;;
     "src/utils/Makefile") CONFIG_FILES="$CONFIG_FILES src/utils/Makefile" ;;
+    "src/parser/Makefile") CONFIG_FILES="$CONFIG_FILES src/parser/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -719,6 +720,7 @@ S["infodir"]="${datarootdir}/info"
 S["docdir"]="${datarootdir}/doc/${PACKAGE_TARNAME}"
 S["oldincludedir"]="/usr/include"
 S["includedir"]="${prefix}/include"
+S["runstatedir"]="${localstatedir}/run"
 S["localstatedir"]="${prefix}/var"
 S["sharedstatedir"]="${prefix}/com"
 S["sysconfdir"]="${prefix}/etc"
@@ -1200,9 +1202,7 @@ $as_echo X/"$am_mf" |
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  If GNU make was not used, consider
-    re-running the configure script with MAKE=\"gmake\" (or whatever is
-    necessary).  You can also try re-running configure with the
+    for automatic dependency tracking.  Try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).
 See \`config.log' for more details" "$LINENO" 5; }
