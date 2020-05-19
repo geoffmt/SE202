@@ -182,6 +182,12 @@ void Binder::visit(Identifier &id)
     error(id.loc, "Identifier declaration not found for " + std::string(id.name));
   }
   id.set_decl(decl);
+  id.set_depth(functions.size());
+
+  // is it a escaping ?
+  if (decl->get_depth() < id.get_depth()) {
+    decl->set_escapes();
+  }
 }
 
 void Binder::visit(IfThenElse &ite)
@@ -200,12 +206,14 @@ void Binder::visit(VarDecl &decl)
     expr.value().accept(*this);
   }
   enter(decl);
+  decl.set_depth(functions.size());
 }
 
 void Binder::visit(FunDecl &decl)
 {
   set_parent_and_external_name(decl);
   functions.push_back(&decl);
+  decl.set_depth(functions.size()-1);
 
   push_scope(); // we go in
   std::vector<VarDecl *> &params = decl.get_params();
@@ -235,6 +243,7 @@ void Binder::visit(FunCall &call) {
   }
 
   call.set_decl(decl);
+  call.set_depth(functions.size());
 
 }
 
