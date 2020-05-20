@@ -15,6 +15,7 @@ int main(int argc, char **argv) {
   ("help,h", "describe arguments")
   ("dump-ast", "dump the parsed AST")
   ("bind,b", "run the binder on the parsed AST")
+  ("type,t", "run the type checker on the parsed AST")
   ("trace-parser", "enable parser traces")
   ("trace-lexer", "enable lexer traces")
   ("verbose,v", "be verbose")
