@@ -148,6 +148,8 @@ void Binder::visit(Let &let)
   std::vector<Decl *> &decls = let.get_decls();
   Sequence &seq = let.get_sequence();
   std::vector<FunDecl *> funDecls;
+  Loop * ex_current_loop = curr_loop;
+  curr_loop = nullptr;
 
   for (auto it = decls.begin(); it != decls.end(); it++)
   {
@@ -168,6 +170,7 @@ void Binder::visit(Let &let)
   {
     decl->accept(*this);
   }
+  curr_loop = ex_current_loop;
   seq.accept(*this);
   pop_scope();
 }
@@ -235,35 +238,37 @@ void Binder::visit(FunDecl &decl)
   functions.pop_back();
 }
 
-void Binder::visit(FunCall &call) {
-
-  FunDecl * decl = dynamic_cast<FunDecl *>(&find(call.loc, call.func_name));
-  if (!decl) {
+void Binder::visit(FunCall &call)
+{
+  FunDecl *decl = dynamic_cast<FunDecl *>(&find(call.loc, call.func_name));
+  if (!decl)
+  {
     error(call.loc, "Function declaration not found for " + std::string(call.func_name));
   }
 
   call.set_decl(decl);
   call.set_depth(functions.size());
-
 }
 
-void Binder::visit(WhileLoop &loop) {
+void Binder::visit(WhileLoop &loop)
+{
   loop.get_condition().accept(*this);
 
-  Loop * ex_current_loop = curr_loop; // we save the previous loop
+  Loop *ex_current_loop = curr_loop; // we save the previous loop
   curr_loop = &loop;
   loop.get_body().accept(*this);
 
   curr_loop = ex_current_loop; // to go out of the loop when finished
 }
 
-void Binder::visit(ForLoop &loop) {
+void Binder::visit(ForLoop &loop)
+{
   loop.get_high().accept(*this);
 
   push_scope();
   loop.get_variable().accept(*this);
 
-  Loop * ex_current_loop = curr_loop;
+  Loop *ex_current_loop = curr_loop;
   curr_loop = &loop;
   loop.get_body().accept(*this);
   pop_scope();
@@ -271,15 +276,23 @@ void Binder::visit(ForLoop &loop) {
   curr_loop = ex_current_loop;
 }
 
-void Binder::visit(Break &b) {
-  if (curr_loop) {
+void Binder::visit(Break &b)
+{
+  if (curr_loop)
+  {
     b.set_loop(curr_loop);
-  } else {
+  }
+  else
+  {
     error(b.loc, "Break used outside of a loop");
   }
 }
 
-void Binder::visit(Assign &assign) {
+void Binder::visit(Assign &assign)
+{
+  assign.get_lhs().accept(*this);
+
+  assign.get_rhs().accept(*this);
 }
 
 } // namespace binder
