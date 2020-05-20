@@ -147,36 +147,42 @@ void Binder::visit(Let &let)
 
   std::vector<Decl *> &decls = let.get_decls();
   Sequence &seq = let.get_sequence();
-  std::vector<FunDecl *> funDecls;
-  Loop * ex_current_loop = curr_loop;
+  Loop *ex_current_loop = curr_loop;
   curr_loop = nullptr;
 
-  for (auto it = decls.begin(); it != decls.end(); it++)
+  auto it = decls.begin();
+  // seg fault correction attempt
+  while (it != decls.end())
   {
     FunDecl *decl = dynamic_cast<FunDecl *>(*it);
+    std::vector<FunDecl *> funDecls;
+
+    // if we have a VarDecl 
     if (!decl)
     {
       (*it)->accept(*this);
+      it++;
+      continue;
     }
+
+    // If we have a FunDecl
     // while fundecl we keep consecutive functions
-    else
+    while (decl)
     {
-      while (decl)
+      enter(*decl);
+      funDecls.push_back(decl);
+      it++;
+      if (it == decls.end())
       {
-        enter(*decl);
-        funDecls.push_back(decl);
-        it++;
-        if (it == decls.end())
-        {
-          break;
-        }
-        decl = dynamic_cast<FunDecl *>(*it);
+        break;
       }
-      //consecutive func
-      for (FunDecl *decl : funDecls)
-      {
-        decl->accept(*this);
-      }
+      decl = dynamic_cast<FunDecl *>(*it);
+    }
+
+    // consecutive func
+    for (FunDecl *decl : funDecls)
+    {
+      decl->accept(*this);
     }
   }
 
