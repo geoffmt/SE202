@@ -158,18 +158,28 @@ void Binder::visit(Let &let)
     {
       (*it)->accept(*this);
     }
-
+    // while fundecl we keep consecutive functions
     else
     {
-      enter(*decl);
-      funDecls.push_back(decl);
+      while (decl)
+      {
+        enter(*decl);
+        funDecls.push_back(decl);
+        it++;
+        if (it == decls.end())
+        {
+          break;
+        }
+        decl = dynamic_cast<FunDecl *>(*it);
+      }
+      //consecutive func
+      for (FunDecl *decl : funDecls)
+      {
+        decl->accept(*this);
+      }
     }
   }
 
-  for (FunDecl *decl : funDecls)
-  {
-    decl->accept(*this);
-  }
   curr_loop = ex_current_loop;
   seq.accept(*this);
   pop_scope();
