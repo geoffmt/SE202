@@ -309,12 +309,21 @@ void Binder::visit(Break &b)
   {
     error(b.loc, "Break used outside of a loop");
   }
+  
 }
 
 void Binder::visit(Assign &assign)
 {
   assign.get_lhs().accept(*this);
 
+  optional<VarDecl &> decl = assign.get_lhs().get_decl();
+
+  if (decl) {
+    // check if the value is an index 
+    if (decl.value().read_only) {
+        error(assign.loc, "Loop index cannot be assignable");
+    }
+  }
   assign.get_rhs().accept(*this);
 }
 
