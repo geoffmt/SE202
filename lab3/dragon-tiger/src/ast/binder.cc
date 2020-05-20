@@ -248,6 +248,13 @@ void Binder::visit(FunCall &call)
 
   call.set_decl(decl);
   call.set_depth(functions.size());
+
+  // attempt to solve mutually recursive functions issue
+  std::vector<Expr *> &args = call.get_args();
+  for (Expr *expr : args)
+  {
+    expr->accept(*this);
+  }
 }
 
 void Binder::visit(WhileLoop &loop)
