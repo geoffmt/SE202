@@ -12,6 +12,7 @@ namespace binder {
 typedef std::unordered_map<Symbol, Decl *> scope_t;
 
 class Binder : public ASTVisitor {
+  Loop * curr_loop = nullptr; // class member variable to record the visited loops
   std::vector<scope_t> scopes;
   std::vector<FunDecl *> functions;
   std::unordered_set<Symbol> external_names;

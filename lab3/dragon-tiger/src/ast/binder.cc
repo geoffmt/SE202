@@ -248,12 +248,35 @@ void Binder::visit(FunCall &call) {
 }
 
 void Binder::visit(WhileLoop &loop) {
+  loop.get_condition().accept(*this);
+
+  Loop * ex_current_loop = curr_loop; // we save the previous loop
+  curr_loop = &loop;
+  loop.get_body().accept(*this);
+
+  curr_loop = ex_current_loop; // to go out of the loop when finished
 }
 
 void Binder::visit(ForLoop &loop) {
+  loop.get_high().accept(*this);
+
+  push_scope();
+  loop.get_variable().accept(*this);
+
+  Loop * ex_current_loop = curr_loop;
+  curr_loop = &loop;
+  loop.get_body().accept(*this);
+  pop_scope();
+
+  curr_loop = ex_current_loop;
 }
 
 void Binder::visit(Break &b) {
+  if (curr_loop) {
+    b.set_loop(curr_loop);
+  } else {
+    error(b.loc, "Break used outside of a loop");
+  }
 }
 
 void Binder::visit(Assign &assign) {
