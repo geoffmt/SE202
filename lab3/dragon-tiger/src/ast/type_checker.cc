@@ -63,11 +63,57 @@ void TypeChecker::visit(Let &let)
   let.set_type(seq.get_type());
 }
 
-void TypeChecker::visit(VarDecl &decl){
+void TypeChecker::visit(VarDecl &decl)
+{
+  Type type = t_undef;
+  // case with explicit type in type_name field
+  if (decl.type_name)
+  {
 
+    // check if type_n is a know type
+    if (decl.type_name == t_int)
+    {
+      type = t_int;
+    }
+    else if (decl.type_name == t_string)
+    {
+      type = t_string;
+    }
+    else
+    {
+      utils::error(decl.loc, "Incompatible type.");
+    }
+  }
 
+  // case without an explicit type given
+  Type type_e = t_undef;
+  optional<Expr &> expr = decl.get_expr();
+  if (expr)
+  {
+    expr.value().accept(*this);
+    type_e = expr.value().get_type();
+    if (type_e == t_void)
+    {
+      utils::error(decl.loc, "Type t_void not allowed.");
+    }
+  }
 
-
+  if (type == t_undef && type_e == t_undef)
+  {
+    utils::error(decl.loc, "Unknown type for variable");
+  }
+  if (type != t_undef && type_e != t_undef)
+  {
+    utils::error(decl.loc, "Two different types for variable.");
+  }
+  if (type != t_undef && type_e == t_undef)
+  {
+    decl.set_type(type);
+  }
+  if (type == t_undef && type_e != t_undef)
+  {
+    decl.set_type(type_e);
+  }
 }
 
 void TypeChecker::visit(BinaryOperator &op){
@@ -110,16 +156,37 @@ void TypeChecker::visit(Assign &assign){
 }
 
 void TypeChecker::visit(WhileLoop &loop){
+  loop.get_condition().accept(*this);
+  if (loop.get_condition().get_type() != t_int){
+    utils::error(loop.loc, "Type for condition is not valid.")
+  }
+  
+  loop.get_body().accept(*this);
+  if (loop.get_body().get_type() != t_void){
+    utils::error(loop.loc, "Type for loop body is not valid.")
+  }
 
-
-
+  loop.set_type(t_void);
 
 }
 
 void TypeChecker::visit(ForLoop &loop){
+  loop.get_high().accept(*this);
+  if (loop.get_high().get_type() != t_int){
+    utils::error(loop.loc, "Type for bounds is not valid.")
+  }
+  
+  loop.get_variable().accept(this*);
+  if (loop.get_variable().get_type() != t_int){
+    utils::error(loop.loc, "Type for variable is not valid.")
+  }
 
+  loop.get_body().accept(*this);
+  if (loop.get_body().get_type() != t_void){
+    utils::error(loop.loc, "Type for loop body is not valid.")
+  }
 
-
+  loop.set_type(t_void);
 
 }
 
@@ -129,16 +196,72 @@ void TypeChecker::visit(Break &b){
 
 void TypeChecker::visit(FunDecl &decl){
 
+  std::vector<VarDecl *> &params = decl.get_params();
 
+  // accept parameter of function
+  for (VarDecl *decl : params)
+  {
+    decl->accept(*this);
+  }
 
+  Type type = t_undef;
+
+  if (decl.type_name){
+    if (decl.type_name == t_int){
+      type = t_int;
+    }
+    else if (decl.type_name == t_string){
+      type = t_string;
+    }
+    else if (decl.type_name == t_void){
+      type = t_void;
+    }
+    else
+    {
+      utils::error(decl.loc, "Incompatible type.");
+    }
+  }
+
+  decl.set_type(type);
+
+  Type type_e = t_undef;
+  // accept expr of function
+  optional<Expr &> expr = decl.get_expr();
+  if (expr)
+  {
+    expr.value().accept(*this);
+    type_e = expr.value().get_type();
+    if (type != type_e)
+    {
+      utils::error(decl.loc, "Two different types for variable.");
+    }
+  }
+  
 
 }
 
 void TypeChecker::visit(FunCall &call){
 
+  optional<FunDecl &> decl = call.get_decl();
 
+  decl.value().accept(this*);
+  call.set_type(decl.value().get_type());
 
+  std::vector<VarDecl *> &params = decl.value().get_params();
+  std::vector<Expr *> &args = call.get_args();
+  
+  // check if there is the right number of arguments
+  if (args.size() != params.size()){
+    utils::error(call.loc, "Number of arguments do not match.");
+  }
 
+  // check if they have all the right type
+  for (int i = 0; i<args.size(); i++){
+    args[i]->accept(this*);
+    if (args[i]->get_type() != params[i]->get_type()){
+      utils::error(call.loc, "Arguments type do not match.")
+    }
+  }
 }
 
 
