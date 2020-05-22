@@ -134,7 +134,7 @@ void TypeChecker::visit(BinaryOperator &op){
     utils::error(op.loc, "Operands do not have the same type.");
   }
 
-  if (left.get_type() == t_void || left.get_type() == t_undef){
+  if (left.get_type() == t_void || left.get_type() == t_undef || left.get_type() == t_string){
     utils::error(op.loc, "Wrong type for operand.");
   }
 
@@ -227,7 +227,14 @@ void TypeChecker::visit(FunDecl &decl){
       type = t_string;
     }
     else if (type_name == "void"){
-      type = t_void;
+      if (decl.is_external){
+        type = t_void;
+      }
+      else
+      {
+        utils::error(decl.loc, "Explicit void type name is not allowed in non-primitive function declaration.");
+      }
+      
     }
     else
     {
@@ -257,7 +264,10 @@ void TypeChecker::visit(FunCall &call){
 
   optional<FunDecl &> decl = call.get_decl();
 
-  decl.value().accept(*this);
+
+  if (decl.value().get_type() == t_undef){
+    decl.value().accept(*this);
+  }
   call.set_type(decl.value().get_type());
 
   std::vector<VarDecl *> &params = decl.value().get_params();
