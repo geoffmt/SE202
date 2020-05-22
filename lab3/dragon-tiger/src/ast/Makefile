@@ -111,7 +111,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libast_a_AR = $(AR) $(ARFLAGS)
 libast_a_LIBADD =
-am_libast_a_OBJECTS = ast_dumper.$(OBJEXT) binder.$(OBJEXT)
+am_libast_a_OBJECTS = type_checker.$(OBJEXT) ast_dumper.$(OBJEXT) \
+	binder.$(OBJEXT)
 libast_a_OBJECTS = $(am_libast_a_OBJECTS)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -128,7 +129,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/ast_dumper.Po ./$(DEPDIR)/binder.Po
+am__depfiles_remade = ./$(DEPDIR)/ast_dumper.Po ./$(DEPDIR)/binder.Po \
+	./$(DEPDIR)/type_checker.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -298,7 +300,7 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = libast.a
-libast_a_SOURCES = ast_dumper.cc binder.cc ast_dumper.hh binder.hh nodes.hh
+libast_a_SOURCES = type_checker.cc ast_dumper.cc binder.cc type_checker.hh ast_dumper.hh binder.hh nodes.hh
 AM_CXXFLAGS = -pedantic -Wall
 all: all-am
 
@@ -350,6 +352,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/ast_dumper.Po # am--include-marker
 include ./$(DEPDIR)/binder.Po # am--include-marker
+include ./$(DEPDIR)/type_checker.Po # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -499,6 +502,7 @@ clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/ast_dumper.Po
 	-rm -f ./$(DEPDIR)/binder.Po
+	-rm -f ./$(DEPDIR)/type_checker.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -546,6 +550,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/ast_dumper.Po
 	-rm -f ./$(DEPDIR)/binder.Po
+	-rm -f ./$(DEPDIR)/type_checker.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

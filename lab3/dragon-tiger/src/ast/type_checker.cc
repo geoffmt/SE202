@@ -20,7 +20,7 @@ void TypeChecker::visit(Sequence &seq)
   Type type = t_void;
 
   for (Expr * expr : exprs){
-    expr->accept(this*);
+    expr->accept(*this);
     type = expr->get_type(); // same type as their last expression
   }
 
@@ -28,14 +28,14 @@ void TypeChecker::visit(Sequence &seq)
 }
 
 void TypeChecker::visit(IfThenElse &ite){
-  Expr cond = ite.get_condition();
-  Expr then = ite.get_then_part();
-  Expr _else = ite.get_else_part();
+  Expr &cond = ite.get_condition();
+  Expr &then = ite.get_then_part();
+  Expr &_else = ite.get_else_part();
 
   cond.accept(*this);
 
   if (cond.get_type()!= t_int){
-    utils::error(ite.loc, "Type for condition must be int.")
+    utils::error(ite.loc, "Type for condition must be int.");
   }
 
   then.accept(*this);
@@ -56,10 +56,10 @@ void TypeChecker::visit(Let &let)
 
   for (Decl *decl : decls)
   {
-    decl->accept(this *);
+    decl->accept(*this);
   }
 
-  seq.accept(this*);
+  seq.accept(*this);
   let.set_type(seq.get_type());
 }
 
@@ -69,13 +69,14 @@ void TypeChecker::visit(VarDecl &decl)
   // case with explicit type in type_name field
   if (decl.type_name)
   {
+    std::string type_name = std::string(decl.type_name.value());
 
     // check if type_n is a know type
-    if (decl.type_name == t_int)
+    if (type_name == "int")
     {
       type = t_int;
     }
-    else if (decl.type_name == t_string)
+    else if (type_name == "string")
     {
       type = t_string;
     }
@@ -117,17 +118,17 @@ void TypeChecker::visit(VarDecl &decl)
 }
 
 void TypeChecker::visit(BinaryOperator &op){
-  Expr left = op.get_left();
-  Expr right = op.get_right();
-  left.accept(this*);
-  right.accept(this*);
+  Expr &left = op.get_left();
+  Expr &right = op.get_right();
+  left.accept(*this);
+  right.accept(*this);
 
   if (left.get_type()!=right.get_type()){
-    utils:error(op.loc, "Operands do not have the same type.");
+    utils::error(op.loc, "Operands do not have the same type.");
   }
 
   if (left.get_type() == t_void){
-    utils::error(op.loc, "Wrong type for operand.")
+    utils::error(op.loc, "Wrong type for operand.");
   }
 
   op.set_type(t_int);
@@ -139,7 +140,7 @@ void TypeChecker::visit(Identifier &id){
     id.set_type(decl.value().get_type());
   }
   else{
-    utils::error(id.loc, "No declaration.")
+    utils::error(id.loc, "No declaration.");
   }
   
 }
@@ -148,11 +149,11 @@ void TypeChecker::visit(Assign &assign){
   Identifier &lhs = assign.get_lhs();
   Expr &rhs = assign.get_rhs();
 
-  lhs.accept(this*);
-  rhs.accept(this*);
+  lhs.accept(*this);
+  rhs.accept(*this);
 
   if (lhs.get_type()!=rhs.get_type()){
-    utils::error(assign.loc, "Wrong type.")
+    utils::error(assign.loc, "Wrong type.");
   }
 
   assign.set_type(t_void);
@@ -161,12 +162,12 @@ void TypeChecker::visit(Assign &assign){
 void TypeChecker::visit(WhileLoop &loop){
   loop.get_condition().accept(*this);
   if (loop.get_condition().get_type() != t_int){
-    utils::error(loop.loc, "Type for condition is not valid.")
+    utils::error(loop.loc, "Type for condition is not valid.");
   }
   
   loop.get_body().accept(*this);
   if (loop.get_body().get_type() != t_void){
-    utils::error(loop.loc, "Type for loop body is not valid.")
+    utils::error(loop.loc, "Type for loop body is not valid.");
   }
 
   loop.set_type(t_void);
@@ -176,17 +177,17 @@ void TypeChecker::visit(WhileLoop &loop){
 void TypeChecker::visit(ForLoop &loop){
   loop.get_high().accept(*this);
   if (loop.get_high().get_type() != t_int){
-    utils::error(loop.loc, "Type for bounds is not valid.")
+    utils::error(loop.loc, "Type for bounds is not valid.");
   }
   
-  loop.get_variable().accept(this*);
+  loop.get_variable().accept(*this);
   if (loop.get_variable().get_type() != t_int){
-    utils::error(loop.loc, "Type for variable is not valid.")
+    utils::error(loop.loc, "Type for variable is not valid.");
   }
 
   loop.get_body().accept(*this);
   if (loop.get_body().get_type() != t_void){
-    utils::error(loop.loc, "Type for loop body is not valid.")
+    utils::error(loop.loc, "Type for loop body is not valid.");
   }
 
   loop.set_type(t_void);
@@ -210,13 +211,15 @@ void TypeChecker::visit(FunDecl &decl){
   Type type = t_undef;
 
   if (decl.type_name){
-    if (decl.type_name == t_int){
+    std::string type_name = std::string(decl.type_name.value());
+
+    if (type_name == "int"){
       type = t_int;
     }
-    else if (decl.type_name == t_string){
+    else if (type_name == "string"){
       type = t_string;
     }
-    else if (decl.type_name == t_void){
+    else if (type_name == "void"){
       type = t_void;
     }
     else
@@ -247,7 +250,7 @@ void TypeChecker::visit(FunCall &call){
 
   optional<FunDecl &> decl = call.get_decl();
 
-  decl.value().accept(this*);
+  decl.value().accept(*this);
   call.set_type(decl.value().get_type());
 
   std::vector<VarDecl *> &params = decl.value().get_params();
@@ -260,9 +263,9 @@ void TypeChecker::visit(FunCall &call){
 
   // check if they have all the right type
   for (int i = 0; i<args.size(); i++){
-    args[i]->accept(this*);
+    args[i]->accept(*this);
     if (args[i]->get_type() != params[i]->get_type()){
-      utils::error(call.loc, "Arguments type do not match.")
+      utils::error(call.loc, "Arguments type do not match.");
     }
   }
 }
