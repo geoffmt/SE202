@@ -844,9 +844,9 @@ dtiger-driver.o: driver.cc /usr/include/stdc-predef.h \
  /usr/include/c++/9/unordered_map /usr/include/c++/9/bits/hashtable.h \
  /usr/include/c++/9/bits/hashtable_policy.h \
  /usr/include/c++/9/bits/unordered_map.h /usr/include/c++/9/unordered_set \
- /usr/include/c++/9/bits/unordered_set.h ../parser/parser_driver.hh \
- ../parser/../ast/nodes.hh ../parser/tiger_parser.hh \
- ../parser/../utils/errors.hh \
+ /usr/include/c++/9/bits/unordered_set.h ../ast/type_checker.hh \
+ ../parser/parser_driver.hh ../parser/../ast/nodes.hh \
+ ../parser/tiger_parser.hh ../parser/../utils/errors.hh \
  ../parser/../utils/../parser/tiger_parser.hh \
  ../parser/../utils/nolocation.hh \
  ../parser/../utils/../parser/location.hh ../parser/location.hh \
@@ -2757,6 +2757,8 @@ dtiger-driver.o: driver.cc /usr/include/stdc-predef.h \
 /usr/include/c++/9/unordered_set:
 
 /usr/include/c++/9/bits/unordered_set.h:
+
+../ast/type_checker.hh:
 
 ../parser/parser_driver.hh:
 
