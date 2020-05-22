@@ -105,7 +105,14 @@ void TypeChecker::visit(VarDecl &decl)
   }
   if (type != t_undef && type_e != t_undef)
   {
-    utils::error(decl.loc, "Two different types for variable.");
+    if (type == type_e)
+    {
+      decl.set_type(type);
+    }
+    else
+    {
+      utils::error(decl.loc, "Two different types for variable.");
+    }
   }
   if (type != t_undef && type_e == t_undef)
   {
@@ -127,7 +134,7 @@ void TypeChecker::visit(BinaryOperator &op){
     utils::error(op.loc, "Operands do not have the same type.");
   }
 
-  if (left.get_type() == t_void){
+  if (left.get_type() == t_void || left.get_type() == t_undef){
     utils::error(op.loc, "Wrong type for operand.");
   }
 
@@ -208,7 +215,7 @@ void TypeChecker::visit(FunDecl &decl){
     decl->accept(*this);
   }
 
-  Type type = t_undef;
+  Type type = t_void;
 
   if (decl.type_name){
     std::string type_name = std::string(decl.type_name.value());
