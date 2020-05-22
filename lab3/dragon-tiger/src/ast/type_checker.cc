@@ -139,7 +139,9 @@ void TypeChecker::visit(BinaryOperator &op){
     error(op.loc, "Wrong type for operand.");
   }
 
-  // 
+  if ((left.get_type() != t_int || right.get_type() != t_int) && ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide))){
+    error(op.loc, "Wrong type for operand with this arithmetic expression.");
+  }
 
   op.set_type(t_int);
 }
@@ -266,18 +268,6 @@ void TypeChecker::visit(FunDecl &decl){
 void TypeChecker::visit(FunCall &call){
 
   optional<FunDecl &> decl = call.get_decl();
-  if (!decl)
-  {
-    error(call.loc, "Function declaration not found for " + std::string(call.func_name));
-  }
-
-
-
-  if (decl.value().get_type() == t_undef){
-    decl.value().accept(*this);
-  }
-  call.set_type(decl.value().get_type());
-
   std::vector<VarDecl *> &params = decl.value().get_params();
   std::vector<Expr *> &args = call.get_args();
   
@@ -285,6 +275,11 @@ void TypeChecker::visit(FunCall &call){
   if (args.size() != params.size()){
     error(call.loc, "Number of arguments do not match.");
   }
+  
+  if (decl.value().get_type() == t_undef){
+    decl.value().accept(*this);
+  }
+  call.set_type(decl.value().get_type());
 
   // check if they have all the right type
   for (long unsigned int i = 0; i<args.size(); i++){
