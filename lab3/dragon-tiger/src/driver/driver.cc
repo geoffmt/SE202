@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
   }
 
   FunDecl *main = nullptr;
-  if (vm.count("bind")) {
+  if (vm.count("bind") || vm.count("type")) {
     ast::binder::Binder binder;
     main = binder.analyze_program(*parser_driver.result_ast);
   }
