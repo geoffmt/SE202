@@ -138,12 +138,15 @@ void TypeChecker::visit(Identifier &id){
   if(decl){
     id.set_type(decl.value().get_type());
   }
+  else{
+    utils::error(id.loc, "No declaration.")
+  }
   
 }
 
 void TypeChecker::visit(Assign &assign){
-  Identifier lhs = assign.get_lhs();
-  Identifier rhs = assign.get_rhs();
+  Identifier &lhs = assign.get_lhs();
+  Expr &rhs = assign.get_rhs();
 
   lhs.accept(this*);
   rhs.accept(this*);
