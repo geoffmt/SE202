@@ -1,6 +1,7 @@
 #include "type_checker.hh"
 #include "../utils/errors.hh"
 
+using utils::error;
 
 namespace ast {
 namespace type_checker {
@@ -35,14 +36,14 @@ void TypeChecker::visit(IfThenElse &ite){
   cond.accept(*this);
 
   if (cond.get_type()!= t_int){
-    utils::error(ite.loc, "Type for condition must be int.");
+    error(ite.loc, "Type for condition must be int.");
   }
 
   then.accept(*this);
   _else.accept(*this);
 
   if (then.get_type()!=_else.get_type()){
-    utils::error(ite.loc, "Branches type not compatible.");
+    error(ite.loc, "Branches type not compatible.");
   }
 
   ite.set_type(_else.get_type());
@@ -82,7 +83,7 @@ void TypeChecker::visit(VarDecl &decl)
     }
     else
     {
-      utils::error(decl.loc, "Incompatible type.");
+      error(decl.loc, "Incompatible type.");
     }
   }
 
@@ -95,13 +96,13 @@ void TypeChecker::visit(VarDecl &decl)
     type_e = expr.value().get_type();
     if (type_e == t_void)
     {
-      utils::error(decl.loc, "Type t_void not allowed.");
+      error(decl.loc, "Type t_void not allowed.");
     }
   }
 
   if (type == t_undef && type_e == t_undef)
   {
-    utils::error(decl.loc, "Unknown type for variable");
+    error(decl.loc, "Unknown type for variable");
   }
   if (type != t_undef && type_e != t_undef)
   {
@@ -111,7 +112,7 @@ void TypeChecker::visit(VarDecl &decl)
     }
     else
     {
-      utils::error(decl.loc, "Two different types for variable.");
+      error(decl.loc, "Two different types for variable.");
     }
   }
   if (type != t_undef && type_e == t_undef)
@@ -131,12 +132,14 @@ void TypeChecker::visit(BinaryOperator &op){
   right.accept(*this);
 
   if (left.get_type()!=right.get_type()){
-    utils::error(op.loc, "Operands do not have the same type.");
+    error(op.loc, "Operands do not have the same type.");
   }
 
-  if (left.get_type() == t_void || left.get_type() == t_undef || left.get_type() == t_string){
-    utils::error(op.loc, "Wrong type for operand.");
+  if (left.get_type() == t_void || left.get_type() == t_undef){
+    error(op.loc, "Wrong type for operand.");
   }
+
+  // 
 
   op.set_type(t_int);
 }
@@ -147,7 +150,7 @@ void TypeChecker::visit(Identifier &id){
     id.set_type(decl.value().get_type());
   }
   else{
-    utils::error(id.loc, "No declaration.");
+    error(id.loc, "No declaration.");
   }
   
 }
@@ -160,7 +163,7 @@ void TypeChecker::visit(Assign &assign){
   rhs.accept(*this);
 
   if (lhs.get_type()!=rhs.get_type()){
-    utils::error(assign.loc, "Wrong type.");
+    error(assign.loc, "Wrong type.");
   }
 
   assign.set_type(t_void);
@@ -169,12 +172,12 @@ void TypeChecker::visit(Assign &assign){
 void TypeChecker::visit(WhileLoop &loop){
   loop.get_condition().accept(*this);
   if (loop.get_condition().get_type() != t_int){
-    utils::error(loop.loc, "Type for condition is not valid.");
+    error(loop.loc, "Type for condition is not valid.");
   }
   
   loop.get_body().accept(*this);
   if (loop.get_body().get_type() != t_void){
-    utils::error(loop.loc, "Type for loop body is not valid.");
+    error(loop.loc, "Type for loop body is not valid.");
   }
 
   loop.set_type(t_void);
@@ -184,17 +187,17 @@ void TypeChecker::visit(WhileLoop &loop){
 void TypeChecker::visit(ForLoop &loop){
   loop.get_high().accept(*this);
   if (loop.get_high().get_type() != t_int){
-    utils::error(loop.loc, "Type for bounds is not valid.");
+    error(loop.loc, "Type for bounds is not valid.");
   }
   
   loop.get_variable().accept(*this);
   if (loop.get_variable().get_type() != t_int){
-    utils::error(loop.loc, "Type for variable is not valid.");
+    error(loop.loc, "Type for variable is not valid.");
   }
 
   loop.get_body().accept(*this);
   if (loop.get_body().get_type() != t_void){
-    utils::error(loop.loc, "Type for loop body is not valid.");
+    error(loop.loc, "Type for loop body is not valid.");
   }
 
   loop.set_type(t_void);
@@ -232,13 +235,13 @@ void TypeChecker::visit(FunDecl &decl){
       }
       else
       {
-        utils::error(decl.loc, "Explicit void type name is not allowed in non-primitive function declaration.");
+        error(decl.loc, "Explicit void type name is not allowed in non-primitive function declaration.");
       }
       
     }
     else
     {
-      utils::error(decl.loc, "Incompatible type.");
+      error(decl.loc, "Incompatible type.");
     }
   }
 
@@ -253,7 +256,7 @@ void TypeChecker::visit(FunDecl &decl){
     type_e = expr.value().get_type();
     if (type != type_e)
     {
-      utils::error(decl.loc, "Two different types for variable.");
+      error(decl.loc, "Two different types for variable.");
     }
   }
   
@@ -263,6 +266,11 @@ void TypeChecker::visit(FunDecl &decl){
 void TypeChecker::visit(FunCall &call){
 
   optional<FunDecl &> decl = call.get_decl();
+  if (!decl)
+  {
+    error(call.loc, "Function declaration not found for " + std::string(call.func_name));
+  }
+
 
 
   if (decl.value().get_type() == t_undef){
@@ -275,14 +283,14 @@ void TypeChecker::visit(FunCall &call){
   
   // check if there is the right number of arguments
   if (args.size() != params.size()){
-    utils::error(call.loc, "Number of arguments do not match.");
+    error(call.loc, "Number of arguments do not match.");
   }
 
   // check if they have all the right type
-  for (int i = 0; i<args.size(); i++){
+  for (long unsigned int i = 0; i<args.size(); i++){
     args[i]->accept(*this);
     if (args[i]->get_type() != params[i]->get_type()){
-      utils::error(call.loc, "Arguments type do not match.");
+      error(call.loc, "Arguments type do not match.");
     }
   }
 }
