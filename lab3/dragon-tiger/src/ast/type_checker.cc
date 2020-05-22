@@ -210,59 +210,64 @@ void TypeChecker::visit(Break &b){
   b.set_type(t_void);
 }
 
-void TypeChecker::visit(FunDecl &decl){
-
-  std::vector<VarDecl *> &params = decl.get_params();
-
-  // accept parameter of function
-  for (VarDecl *decl : params)
+void TypeChecker::visit(FunDecl &decl)
+{
+  if (decl.get_type() == t_undef)
   {
-    decl->accept(*this);
-  }
+    std::vector<VarDecl *> &params = decl.get_params();
 
-  Type type = t_void;
-
-  if (decl.type_name){
-    std::string type_name = std::string(decl.type_name.value());
-
-    if (type_name == "int"){
-      type = t_int;
+    // accept parameter of function
+    for (VarDecl *decl : params)
+    {
+      decl->accept(*this);
     }
-    else if (type_name == "string"){
-      type = t_string;
-    }
-    else if (type_name == "void"){
-      if (decl.is_external){
-        type = t_void;
+
+    Type type = t_void;
+
+    if (decl.type_name)
+    {
+      std::string type_name = std::string(decl.type_name.value());
+
+      if (type_name == "int")
+      {
+        type = t_int;
+      }
+      else if (type_name == "string")
+      {
+        type = t_string;
+      }
+      else if (type_name == "void")
+      {
+        if (decl.is_external)
+        {
+          type = t_void;
+        }
+        else
+        {
+          error(decl.loc, "Explicit void type name is not allowed in non-primitive function declaration.");
+        }
       }
       else
       {
-        error(decl.loc, "Explicit void type name is not allowed in non-primitive function declaration.");
+        error(decl.loc, "Incompatible type.");
       }
-      
     }
-    else
+
+    decl.set_type(type);
+
+    Type type_e = t_undef;
+    // accept expr of function
+    optional<Expr &> expr = decl.get_expr();
+    if (expr)
     {
-      error(decl.loc, "Incompatible type.");
+      expr.value().accept(*this);
+      type_e = expr.value().get_type();
+      if (type != type_e)
+      {
+        error(decl.loc, "Two different types for variable.");
+      }
     }
   }
-
-  decl.set_type(type);
-
-  Type type_e = t_undef;
-  // accept expr of function
-  optional<Expr &> expr = decl.get_expr();
-  if (expr)
-  {
-    expr.value().accept(*this);
-    type_e = expr.value().get_type();
-    if (type != type_e)
-    {
-      error(decl.loc, "Two different types for variable.");
-    }
-  }
-  
-
 }
 
 void TypeChecker::visit(FunCall &call){
