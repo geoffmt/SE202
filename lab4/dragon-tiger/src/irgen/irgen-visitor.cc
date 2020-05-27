@@ -155,7 +155,10 @@ llvm::Value *IRGenerator::visit(const FunCall &call) {
     args_values.push_back(expr->accept(*this));
   }
 
-
+  if (decl.get_type() == t_void) {
+    Builder.CreateCall(callee, args_values);
+    return nullptr;
+  }
   return Builder.CreateCall(callee, args_values, "call");
 }
 
