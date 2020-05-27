@@ -94,7 +94,7 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite)
   llvm::Value * result;
 
   // creation de result
-  if (ite.get_type() == t_void)
+  if (ite.get_type() != t_void)
   {
     result = alloca_in_entry(llvm_type(ite.get_type()), "if_result");
   }
