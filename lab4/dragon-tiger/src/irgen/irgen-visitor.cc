@@ -25,7 +25,11 @@ llvm::Value *IRGenerator::visit(const StringLiteral &literal) {
 }
 
 llvm::Value *IRGenerator::visit(const Break &b) {
-  UNIMPLEMENTED();
+  if(b.get_loop()){
+    llvm::BasicBlock* end_block = loop_exit_bbs[&b.get_loop().value()];
+    Builder.CreateBr(end_block);
+  }
+  return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(const BinaryOperator &op) {
