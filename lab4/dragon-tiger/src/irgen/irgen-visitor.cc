@@ -155,6 +155,8 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite)
 
 llvm::Value *IRGenerator::visit(const VarDecl &decl)
 {
+  if (decl.get_type() == t_void)
+    return nullptr;
   llvm::Type *type = llvm_type(decl.get_type());
   llvm::Value *alloc = alloca_in_entry(type, std::string(decl.name));
   if (decl.get_expr())
@@ -162,8 +164,6 @@ llvm::Value *IRGenerator::visit(const VarDecl &decl)
     llvm::Value *expr = decl.get_expr().value().accept(*this);
     Builder.CreateStore(expr, alloc);
   }
-  if (decl.get_type() == t_void)
-    return nullptr;
   allocations[&decl] = alloc;
   return alloc;
 }
