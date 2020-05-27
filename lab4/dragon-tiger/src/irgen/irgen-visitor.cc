@@ -107,6 +107,8 @@ llvm::Value *IRGenerator::visit(const VarDecl &decl)
     llvm::Value *expr = decl.get_expr().value().accept(*this);
     Builder.CreateStore(expr, alloc);
   }
+  if (decl.get_type() == t_void)
+    return nullptr;
   allocations[&decl] = alloc;
   return alloc;
 }
@@ -190,7 +192,6 @@ llvm::Value *IRGenerator::visit(const Assign &assign)
 {
   const Identifier &id = assign.get_lhs();
   llvm::Value *expr = assign.get_rhs().accept(*this);
-
   return Builder.CreateStore(expr, address_of(id));
 }
 
