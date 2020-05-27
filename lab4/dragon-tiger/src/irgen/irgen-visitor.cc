@@ -155,10 +155,7 @@ llvm::Value *IRGenerator::visit(const FunCall &call) {
     args_values.push_back(expr->accept(*this));
   }
 
-  if (decl.get_type() == t_void) {
-    Builder.CreateCall(callee, args_values);
-    return nullptr;
-  }
+
   return Builder.CreateCall(callee, args_values, "call");
 }
 
@@ -195,6 +192,8 @@ llvm::Value *IRGenerator::visit(const Assign &assign)
 {
   const Identifier &id = assign.get_lhs();
   llvm::Value *expr = assign.get_rhs().accept(*this);
+  if (assign.get_type()==t_void)
+    return nullptr;
   return Builder.CreateStore(expr, address_of(id));
 }
 
