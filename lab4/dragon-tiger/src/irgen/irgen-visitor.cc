@@ -91,7 +91,17 @@ llvm::Value *IRGenerator::visit(const Identifier &id) {
 
 llvm::Value *IRGenerator::visit(const IfThenElse &ite)
 {
-  llvm::Value *const result = alloca_in_entry(llvm_type(ite.get_type()), "if_result");
+  llvm::Value * result;
+
+  // creation de result
+  if (ite.get_type() == t_void)
+  {
+    result = alloca_in_entry(llvm_type(ite.get_type()), "if_result");
+  }
+  else
+  {
+    result = nullptr;
+  }
 
   llvm::BasicBlock *then_block = llvm::BasicBlock::Create(Context, "if_then", current_function);
   llvm::BasicBlock *else_block = llvm::BasicBlock::Create(Context, "if_else", current_function);
@@ -105,15 +115,29 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite)
 
   // then part
   Builder.SetInsertPoint(then_block);
-  llvm::Value *const then_result = ite.get_then_part().accept(*this);
-  Builder.CreateStore(then_result, result);
+  if (result)
+  {
+    llvm::Value *const then_result = ite.get_then_part().accept(*this);
+    Builder.CreateStore(then_result, result);
+  }
+  else
+  {
+    ite.get_then_part().accept(*this);
+  }
   Builder.CreateBr(end_block);
   
 
   // else part
   Builder.SetInsertPoint(else_block);
-  llvm::Value *const else_result = ite.get_else_part().accept(*this);
-  Builder.CreateStore(else_result, result);
+  if (result)
+  {
+    llvm::Value *const else_result = ite.get_else_part().accept(*this);
+    Builder.CreateStore(else_result, result);
+  }
+  else
+  {
+    ite.get_else_part().accept(*this);
+  }
   Builder.CreateBr(end_block);
 
   // end part
