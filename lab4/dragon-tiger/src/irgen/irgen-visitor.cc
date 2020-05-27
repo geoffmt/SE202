@@ -94,8 +94,42 @@ llvm::Value *IRGenerator::visit(const Identifier &id) {
   return Builder.CreateLoad(address_of(id));
 }
 
-llvm::Value *IRGenerator::visit(const IfThenElse &ite) {
-  UNIMPLEMENTED();
+llvm::Value *IRGenerator::visit(const IfThenElse &ite)
+{
+  llvm::Value *const result = alloca_in_entry(llvm_type(ite.get_type()), "if_result");
+
+  llvm::BasicBlock *then_block = llvm::BasicBlock::Create(Context, "if_then", current_function);
+  llvm::BasicBlock *else_block = llvm::BasicBlock::Create(Context, "if_else", current_function);
+  llvm::BasicBlock *end_block = llvm::BasicBlock::Create(Context, "if_end", current_function);
+
+  // Branch depending on the condition
+  Builder.CreateCondBr(
+      Builder.CreateIsNotNull(ite.get_condition().accept(*this)),
+      then_block,
+      else_block);
+
+  // then part
+  Builder.SetInsertPoint(then_block);
+  llvm::Value *const then_result = ite.get_then_part().accept(*this);
+  Builder.CreateStore(then_result, result);
+  Builder.CreateBr(end_block);
+
+  // else part
+  Builder.SetInsertPoint(else_block);
+  llvm::Value *const else_result = ite.get_else_part().accept(*this);
+  Builder.CreateStore(else_result, result);
+  Builder.CreateBr(end_block);
+
+  // end part
+  Builder.SetInsertPoint(end_block);
+  if (result)
+  {
+    return Builder.CreateLoad(result);
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 llvm::Value *IRGenerator::visit(const VarDecl &decl)
@@ -163,7 +197,26 @@ llvm::Value *IRGenerator::visit(const FunCall &call) {
 }
 
 llvm::Value *IRGenerator::visit(const WhileLoop &loop) {
-  UNIMPLEMENTED();
+  llvm::BasicBlock *const test_block =
+      llvm::BasicBlock::Create(Context, "loop_test", current_function);
+  llvm::BasicBlock *const body_block =
+      llvm::BasicBlock::Create(Context, "loop_body", current_function);
+  llvm::BasicBlock *const end_block =
+      llvm::BasicBlock::Create(Context, "loop_end", current_function);
+
+  Builder.CreateBr(test_block);
+  Builder.CreateCondBr(
+      Builder.CreateIsNotNull(loop.get_condition().accept(*this)),
+      body_block,
+      end_block);
+
+  Builder.SetInsertPoint(body_block);
+  loop.get_body().accept(*this);
+  Builder.CreateBr(test_block);
+
+
+  Builder.SetInsertPoint(end_block);
+  return nullptr;
 }
 
 llvm::Value *IRGenerator::visit(const ForLoop &loop) {
@@ -195,9 +248,6 @@ llvm::Value *IRGenerator::visit(const Assign &assign)
 {
   const Identifier &id = assign.get_lhs();
   llvm::Value *expr = assign.get_rhs().accept(*this);
-  if (assign.get_type()==t_void)
-    return nullptr;
-
   return Builder.CreateStore(expr, address_of(id));
 }
 
