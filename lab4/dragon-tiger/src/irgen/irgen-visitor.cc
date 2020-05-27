@@ -108,6 +108,7 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite)
   llvm::Value *const then_result = ite.get_then_part().accept(*this);
   Builder.CreateStore(then_result, result);
   Builder.CreateBr(end_block);
+  
 
   // else part
   Builder.SetInsertPoint(else_block);
