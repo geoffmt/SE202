@@ -199,6 +199,8 @@ llvm::Value *IRGenerator::visit(const WhileLoop &loop) {
   llvm::BasicBlock *const end_block =
       llvm::BasicBlock::Create(Context, "loop_end", current_function);
 
+  loop_exit_bbs[&loop] = end_block;
+
   Builder.CreateBr(test_block);
   Builder.SetInsertPoint(test_block);
   Builder.CreateCondBr(
