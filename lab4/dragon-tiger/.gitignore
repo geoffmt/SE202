@@ -16,4 +16,4 @@ src/parser/tiger_parser.cc
 src/parser/bison-graph.gv
 src/parser/bison-report.txt
 src/driver/dtiger
-
+test.tig

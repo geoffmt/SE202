@@ -98,13 +98,17 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite) {
   UNIMPLEMENTED();
 }
 
-llvm::Value *IRGenerator::visit(const VarDecl &decl) {
-  llvm::Type * type = llvm_type(decl.get_type());
-  llvm::Value * alloc = alloca_in_entry(type, std::string(decl.name));
-  if (decl.get_expr()) {
-    llvm::Value * expr = decl.get_expr().value().accept(*this);
+llvm::Value *IRGenerator::visit(const VarDecl &decl)
+{
+  llvm::Type *type = llvm_type(decl.get_type());
+  llvm::Value *alloc = alloca_in_entry(type, std::string(decl.name));
+  if (decl.get_expr())
+  {
+    llvm::Value *expr = decl.get_expr().value().accept(*this);
     Builder.CreateStore(expr, alloc);
   }
+  if (decl.get_type() == t_void)
+    return nullptr;
   allocations[&decl] = alloc;
   return alloc;
 }
@@ -187,8 +191,11 @@ llvm::Value *IRGenerator::visit(const ForLoop &loop) {
   return nullptr;
 }
 
-llvm::Value *IRGenerator::visit(const Assign &assign) {
-  UNIMPLEMENTED();
+llvm::Value *IRGenerator::visit(const Assign &assign)
+{
+  const Identifier &id = assign.get_lhs();
+  llvm::Value *expr = assign.get_rhs().accept(*this);
+  return Builder.CreateStore(expr, address_of(id));
 }
 
 } // namespace irgen
