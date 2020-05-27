@@ -4,15 +4,6 @@
 
 #include "llvm/Support/raw_ostream.h"
 
-namespace {
-
-// This function can be removed once the lab has been fully implemented.
-[[noreturn]] void UNIMPLEMENTED() {
-  std::cerr << "Error: unimplemented feature\n";
-  exit(1);
-}
-
-} // namespace
 
 namespace irgen {
 
@@ -209,6 +200,7 @@ llvm::Value *IRGenerator::visit(const WhileLoop &loop) {
       llvm::BasicBlock::Create(Context, "loop_end", current_function);
 
   Builder.CreateBr(test_block);
+  Builder.SetInsertPoint(test_block);
   Builder.CreateCondBr(
       Builder.CreateIsNotNull(loop.get_condition().accept(*this)),
       body_block,
