@@ -86,6 +86,9 @@ llvm::Value *IRGenerator::visit(const Let &let) {
 }
 
 llvm::Value *IRGenerator::visit(const Identifier &id) {
+  if (id.get_type() == t_void){
+    return nullptr;
+  }
   return Builder.CreateLoad(address_of(id));
 }
 
