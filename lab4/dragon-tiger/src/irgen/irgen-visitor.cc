@@ -155,8 +155,12 @@ llvm::Value *IRGenerator::visit(const IfThenElse &ite)
 
 llvm::Value *IRGenerator::visit(const VarDecl &decl)
 {
-  if (decl.get_type() == t_void)
+  if (decl.get_type() == t_void){
+    if (decl.get_expr()){
+      decl.get_expr().value().accept(*this);
+    }
     return nullptr;
+  }
   llvm::Type *type = llvm_type(decl.get_type());
   llvm::Value *alloc = alloca_in_entry(type, std::string(decl.name));
   if (decl.get_expr())
@@ -252,6 +256,9 @@ llvm::Value *IRGenerator::visit(const ForLoop &loop) {
       llvm::BasicBlock::Create(Context, "loop_end", current_function);
   llvm::Value *const index = loop.get_variable().accept(*this);
   llvm::Value *const high = loop.get_high().accept(*this);
+
+  loop_exit_bbs[&loop] = end_block;
+
   Builder.CreateBr(test_block);
 
   Builder.SetInsertPoint(test_block);
@@ -270,8 +277,10 @@ llvm::Value *IRGenerator::visit(const ForLoop &loop) {
 
 llvm::Value *IRGenerator::visit(const Assign &assign)
 {
-  const Identifier &id = assign.get_lhs();
   llvm::Value *expr = assign.get_rhs().accept(*this);
+  if (assign.get_lhs().get_type() == t_void)
+    return nullptr;
+  const Identifier &id = assign.get_lhs();
   return Builder.CreateStore(expr, address_of(id));
 }
 
