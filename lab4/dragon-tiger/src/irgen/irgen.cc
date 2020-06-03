@@ -112,7 +112,7 @@ void IRGenerator::generate_frame(){
   
   // first field is a pointer to parent frame
   if (current_function_decl->get_parent()){
-    framed_var.push_back(current_function_decl->get_parent().value()->getPointerTo());
+    framed_var.push_back(frame_type[&current_function_decl->get_parent().value()]->getPointerTo());
   }
 
   // types of escaping declarations
@@ -126,13 +126,13 @@ void IRGenerator::generate_frame(){
   std::string ext_name = std::string(current_function_decl->get_external_name());
 
   //create ft_ structure
-  llvm::StructType * ft_ = llvm::StructType::create(Context, framed_var, "ft_"+name);
+  llvm::StructType * ft_ = llvm::StructType::create(Context, framed_var, "ft_"+ext_name);
 
   // register
   frame_type[current_function_decl]=ft_;
 
   // allocate new object on the stack
-  frame = Builder.CreateAlloca(ft_, nullptr, "frame_"+name);
+  frame = Builder.CreateAlloca(ft_, nullptr, "frame_"+ext_name);
 
 
 }
