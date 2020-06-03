@@ -137,4 +137,19 @@ void IRGenerator::generate_frame(){
 
 }
 
+std::pair<llvm::StructType *, llvm::Value *> IRGenerator::frame_up(int levels){
+
+  const FunDecl * fun = current_function_decl;
+  llvm::Value * sl = frame;
+
+  for(int i = 0; i<levels; i++){
+    sl = Builder.CreateLoad(Builder.CreateStructGEP(frame_type[fun],sl,0));
+  }
+
+
+  return std::make_pair(frame_type[fun],sl);
+
+
+}
+
 } // namespace irgen
