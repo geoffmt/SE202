@@ -164,8 +164,8 @@ llvm::Value *IRGenerator::visit(const VarDecl &decl)
     }
     return nullptr;
   }
-  llvm::Type *type = llvm_type(decl.get_type());
-  llvm::Value *alloc = alloca_in_entry(type, std::string(decl.name));
+
+  llvm::Value *alloc = generate_vardecl(decl);
   if (decl.get_expr())
   {
     llvm::Value *expr = decl.get_expr().value().accept(*this);

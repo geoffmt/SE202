@@ -44,10 +44,25 @@ void IRGenerator::print_ir(std::ostream *ostream) {
   *ostream << buffer;
 }
 
-llvm::Value *IRGenerator::address_of(const Identifier &id) {
+llvm::Value *IRGenerator::address_of(const Identifier &id)
+{
   assert(id.get_decl());
   const VarDecl &decl = dynamic_cast<const VarDecl &>(id.get_decl().get());
-  return allocations[&decl];
+  // variable used at the same depth
+  if (!decl.get_escapes())
+  {
+    return allocations[&decl];
+  }
+  else
+  {
+    // use of frame_up to find the address of the function
+    std::pair<llvm::StructType *, llvm::Value *> fu = frame_up(id.get_depth() - decl.get_depth());
+    llvm::StructType * ft = fu.first;
+    llvm::Value * sl = fu.second;
+    int pos = frame_position[&decl];
+
+    return Builder.CreateStructGEP(ft, sl, pos);
+  }
 }
 
 void IRGenerator::generate_program(FunDecl *main) {
