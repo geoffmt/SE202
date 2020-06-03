@@ -60,6 +60,8 @@ class IRGenerator : public ConstASTValueVisitor {
   void generate_frame();
 
   std::pair<llvm::StructType *, llvm::Value *> frame_up(int levels);
+
+  llvm::Value * generate_vardecl(const VarDecl &decl);
   // Generate the LLVM IR code corresponding to a function
   // declaration. If inner function declarations are encountered,
   // they will be stored into pending_func_bodies for later

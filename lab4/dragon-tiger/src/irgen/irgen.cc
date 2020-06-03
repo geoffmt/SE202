@@ -106,18 +106,22 @@ void IRGenerator::generate_function(const FunDecl &decl) {
   llvm::verifyFunction(*current_function);
 }
 
-void IRGenerator::generate_frame(){
+void IRGenerator::generate_frame()
+{
   // Vector of types needed in frame
   std::vector<llvm::Type *> framed_var;
-  
+
   // first field is a pointer to parent frame
-  if (current_function_decl->get_parent()){
+  if (current_function_decl->get_parent())
+  {
     framed_var.push_back(frame_type[&current_function_decl->get_parent().value()]->getPointerTo());
   }
 
   // types of escaping declarations
-  for (VarDecl * escaping_decl: current_function_decl->get_escaping_decls()){
-    if (escaping_decl->get_type()!= t_void){
+  for (VarDecl *escaping_decl : current_function_decl->get_escaping_decls())
+  {
+    if (escaping_decl->get_type() != t_void)
+    {
       framed_var.push_back(llvm_type(escaping_decl->get_type()));
     }
   }
@@ -126,30 +130,56 @@ void IRGenerator::generate_frame(){
   std::string ext_name = std::string(current_function_decl->get_external_name());
 
   //create ft_ structure
-  llvm::StructType * ft_ = llvm::StructType::create(Context, framed_var, "ft_"+ext_name);
+  llvm::StructType *ft_ = llvm::StructType::create(Context, framed_var, "ft_" + ext_name);
 
   // register
-  frame_type[current_function_decl]=ft_;
+  frame_type[current_function_decl] = ft_;
 
   // allocate new object on the stack
-  frame = Builder.CreateAlloca(ft_, nullptr, "frame_"+ext_name);
-
-
+  frame = Builder.CreateAlloca(ft_, nullptr, "frame_" + ext_name);
 }
 
-std::pair<llvm::StructType *, llvm::Value *> IRGenerator::frame_up(int levels){
+std::pair<llvm::StructType *, llvm::Value *> IRGenerator::frame_up(int levels)
+{
 
-  const FunDecl * fun = current_function_decl;
-  llvm::Value * sl = frame;
+  const FunDecl *fun = current_function_decl;
+  llvm::Value *sl = frame;
 
-  for(int i = 0; i<levels; i++){
-    sl = Builder.CreateLoad(Builder.CreateStructGEP(frame_type[fun],sl,0));
+  for (int i = 0; i < levels; i++)
+  {
+    sl = Builder.CreateLoad(Builder.CreateStructGEP(frame_type[fun], sl, 0));
   }
 
+  return std::make_pair(frame_type[fun], sl);
+}
 
-  return std::make_pair(frame_type[fun],sl);
+llvm::Value *IRGenerator::generate_vardecl(const VarDecl &decl)
+{
+  llvm::Value * alloc = nullptr;
 
+  // if it does not escape
+  if (!decl.get_escapes())
+  {
+    alloc = alloca_in_entry(llvm_type(decl.get_type()), std::string(decl.name));
+    allocations[&decl]=alloc;
+    return alloc;
+  }
+  else
+  {
+    std::vector<VarDecl *> decls = current_function_decl->get_escaping_decls();
 
+    // find the position in the sequence of escaping variables
+    auto it = std::find(decls.begin(), decls.end(), &decl);
+    int pos = std::distance(decls.begin(), it);
+    if (current_function_decl->get_parent()){
+      pos = pos + 1;
+    }
+    frame_position[&decl] = pos;
+
+    alloc = Builder.CreateStructGEP(frame_type[current_function_decl], frame, pos);
+    allocations[&decl]=alloc;
+    return alloc;
+  }
 }
 
 } // namespace irgen
