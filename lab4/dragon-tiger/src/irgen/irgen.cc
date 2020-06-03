@@ -74,7 +74,8 @@ void IRGenerator::generate_program(FunDecl *main) {
   }
 }
 
-void IRGenerator::generate_function(const FunDecl &decl) {
+void IRGenerator::generate_function(const FunDecl &decl)
+{
   // Reinitialize common structures.
   allocations.clear();
   loop_exit_bbs.clear();
@@ -88,6 +89,9 @@ void IRGenerator::generate_function(const FunDecl &decl) {
   llvm::BasicBlock *bb1 =
       llvm::BasicBlock::Create(Context, "entry", current_function);
 
+  Builder.SetInsertPoint(bb1);
+  generate_frame();
+
   // Create a second basic block for body insertion
   llvm::BasicBlock *bb2 =
       llvm::BasicBlock::Create(Context, "body", current_function);
@@ -97,11 +101,28 @@ void IRGenerator::generate_function(const FunDecl &decl) {
   // Set the name for each argument and register it in the allocations map
   // after storing it in an alloca.
   unsigned i = 0;
-  for (auto &arg : current_function->args()) {
-    arg.setName(params[i]->name.get());
-    llvm::Value *const shadow = alloca_in_entry(llvm_type(params[i]->get_type()), params[i]->name.get());
-    Builder.CreateStore(&arg, shadow);
-    i++;
+  for (auto &arg : current_function->args())
+  {
+    // analyzing a non external function
+    if (!decl.is_external)
+    {
+      if (i == 0)
+      {
+        arg.setName("top");
+        Builder.CreateStore(&arg, Builder.CreateStructGEP(frame_type[&decl], frame, 0));
+      }
+      else
+      {
+        arg.setName(params[i - 1]->name.get());
+        Builder.CreateStore(&arg, generate_vardecl(*params[i - 1]));
+      }
+    }
+    // external function
+    else
+    {
+      arg.setName(params[i]->name.get());
+      Builder.CreateStore(&arg, generate_vardecl(*params[i]));
+    }
   }
 
   // Visit the body

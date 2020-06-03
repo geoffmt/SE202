@@ -178,6 +178,10 @@ llvm::Value *IRGenerator::visit(const VarDecl &decl)
 llvm::Value *IRGenerator::visit(const FunDecl &decl) {
   std::vector<llvm::Type *> param_types;
 
+  if (!decl.is_external) {
+    param_types.push_back(frame_type[&current_function_decl->get_parent().value()]->getPointerTo());
+  }
+
   for (auto param_decl : decl.get_params()) {
     param_types.push_back(llvm_type(param_decl->get_type()));
   }
@@ -213,6 +217,12 @@ llvm::Value *IRGenerator::visit(const FunCall &call) {
   }
 
   std::vector<llvm::Value *> args_values;
+
+  if (!decl.is_external) {
+    std::pair<llvm::StructType *, llvm::Value *> fu = frame_up(call.get_depth()-decl.get_depth());
+    args_values.push_back(fu.second);
+  }
+
   for (auto expr : call.get_args()) {
     args_values.push_back(expr->accept(*this));
   }
