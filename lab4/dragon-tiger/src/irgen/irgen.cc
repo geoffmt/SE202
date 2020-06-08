@@ -105,7 +105,7 @@ void IRGenerator::generate_function(const FunDecl &decl)
   for (auto &arg : current_function->args())
   {
     // analyzing a non external function
-    if (!decl.is_external)
+    if (!decl.is_external && decl.get_parent())
     {
       if (i == 0)
       {
