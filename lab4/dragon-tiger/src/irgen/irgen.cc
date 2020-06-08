@@ -90,13 +90,14 @@ void IRGenerator::generate_function(const FunDecl &decl)
   llvm::BasicBlock *bb1 =
       llvm::BasicBlock::Create(Context, "entry", current_function);
 
+  Builder.SetInsertPoint(bb1);
+  generate_frame();
 
   // Create a second basic block for body insertion
   llvm::BasicBlock *bb2 =
       llvm::BasicBlock::Create(Context, "body", current_function);
 
   Builder.SetInsertPoint(bb2);
-  generate_frame();
 
   // Set the name for each argument and register it in the allocations map
   // after storing it in an alloca.
@@ -104,7 +105,7 @@ void IRGenerator::generate_function(const FunDecl &decl)
   for (auto &arg : current_function->args())
   {
     // analyzing a non external function
-    if (!decl.is_external && decl.get_parent())
+    if (!decl.is_external)
     {
       if (i == 0)
       {
