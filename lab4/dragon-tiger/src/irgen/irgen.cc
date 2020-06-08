@@ -123,6 +123,7 @@ void IRGenerator::generate_function(const FunDecl &decl)
       arg.setName(params[i]->name.get());
       Builder.CreateStore(&arg, generate_vardecl(*params[i]));
     }
+    i++;
   }
 
   // Visit the body
@@ -184,6 +185,14 @@ std::pair<llvm::StructType *, llvm::Value *> IRGenerator::frame_up(int levels)
   for (int i = 0; i < levels; i++)
   {
     sl = Builder.CreateLoad(Builder.CreateStructGEP(frame_type[fun], sl, 0));
+    if (fun->get_parent())
+    {
+      fun = &fun->get_parent().value();
+    }
+    else
+    {
+      utils::error("Error: Cannot go further up in frame.");
+    }
   }
 
   return std::make_pair(frame_type[fun], sl);
@@ -197,8 +206,6 @@ llvm::Value *IRGenerator::generate_vardecl(const VarDecl &decl)
   if (!decl.get_escapes())
   {
     alloc = alloca_in_entry(llvm_type(decl.get_type()), std::string(decl.name));
-    allocations[&decl]=alloc;
-    return alloc;
   }
   else
   {
@@ -206,6 +213,9 @@ llvm::Value *IRGenerator::generate_vardecl(const VarDecl &decl)
 
     // find the position in the sequence of escaping variables
     auto it = std::find(decls.begin(), decls.end(), &decl);
+    if (it == decls.end()){
+      utils::error(decl.loc, "Decl escape not in a escape decl.");
+    }
     int pos = std::distance(decls.begin(), it);
     if (current_function_decl->get_parent()){
       pos = pos + 1;
@@ -213,9 +223,9 @@ llvm::Value *IRGenerator::generate_vardecl(const VarDecl &decl)
     frame_position[&decl] = pos;
 
     alloc = Builder.CreateStructGEP(frame_type[current_function_decl], frame, pos);
-    allocations[&decl]=alloc;
-    return alloc;
   }
+  allocations[&decl]=alloc;
+  return alloc;
 }
 
 } // namespace irgen
