@@ -178,6 +178,10 @@ llvm::Value *IRGenerator::visit(const VarDecl &decl)
 llvm::Value *IRGenerator::visit(const FunDecl &decl) {
   std::vector<llvm::Type *> param_types;
 
+  if (!decl.is_external && decl.get_parent()) {
+    const FunDecl &parent = decl.get_parent().value();
+    param_types.push_back(frame_type[&parent]->getPointerTo());
+  }
 
   for (auto param_decl : decl.get_params()) {
     param_types.push_back(llvm_type(param_decl->get_type()));
