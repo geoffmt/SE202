@@ -63,6 +63,7 @@ llvm::Value *IRGenerator::address_of(const Identifier &id)
 
     return Builder.CreateStructGEP(ft, sl, pos);
   }
+  return allocations[&decl];
 }
 
 void IRGenerator::generate_program(FunDecl *main) {

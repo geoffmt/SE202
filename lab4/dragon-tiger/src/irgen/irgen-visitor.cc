@@ -24,7 +24,11 @@ llvm::Value *IRGenerator::visit(const Break &b) {
 }
 
 llvm::Value *IRGenerator::visit(const BinaryOperator &op) {
-
+  // Void values can be compared for equality only. We directly
+  // return 1 or 0 depending on the equality/inequality operator.
+  if (op.get_left().get_type() == t_void) {
+    return Builder.getInt32(op.op == o_eq);
+  }
 
   llvm::Value *l = op.get_left().accept(*this);
   llvm::Value *r = op.get_right().accept(*this);
@@ -90,17 +94,14 @@ llvm::Value *IRGenerator::visit(const Identifier &id) {
 
 llvm::Value *IRGenerator::visit(const IfThenElse &ite)
 {
-  llvm::Value * result;
+  llvm::Value * result = nullptr;
 
   // creation de result
   if (ite.get_type() != t_void)
   {
     result = alloca_in_entry(llvm_type(ite.get_type()), "if_result");
   }
-  else
-  {
-    result = nullptr;
-  }
+
 
   llvm::BasicBlock *then_block = llvm::BasicBlock::Create(Context, "if_then", current_function);
   llvm::BasicBlock *else_block = llvm::BasicBlock::Create(Context, "if_else", current_function);
