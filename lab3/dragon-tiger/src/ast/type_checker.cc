@@ -139,28 +139,34 @@ namespace ast
       left.accept(*this);
       right.accept(*this);
 
-      if (left.get_type() != right.get_type())
+      if (left.get_type() == t_int && right.get_type() == t_int)
       {
-        error(op.loc, "Operands do not have the same type.");
+        op.set_type(t_int);
       }
 
-      if (left.get_type() == t_void || left.get_type() == t_undef)
+      else if (left.get_type() == t_void || left.get_type() == t_undef)
       {
         error(op.loc, "Wrong type for operand.");
       }
 
-      if ((left.get_type() != t_int || right.get_type() != t_int) && ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide)))
+      else if (left.get_type() == t_string || right.get_type() == t_string)
       {
-        error(op.loc, "Wrong type for operand with this arithmetic expression.");
+        if ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide))
+          error(op.loc, "Wrong type for operand with this arithmetic expression.");
+        op.set_type(t_int);
       }
-      if (left.get_type() == t_void && right.get_type() == t_void) {
-        if (op.op != o_eq) {
-            utils::error(op.loc, "Error: Only void variables can be tested for equality.") ;
+      else if (left.get_type() == t_void && right.get_type() == t_void)
+      {
+        if (op.op != o_eq)
+        {
+          utils::error(op.loc, "Error: Only void variables can be tested for equality.");
         }
-        op.set_type(t_int) ;
-    }
-
-      op.set_type(t_int);
+        op.set_type(t_int);
+      }
+      else
+      {
+        utils::error(op.loc, "Operands do not have the same type.");
+      }
     }
 
     void TypeChecker::visit(Identifier &id)
