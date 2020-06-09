@@ -144,11 +144,6 @@ namespace ast
         op.set_type(t_int);
       }
 
-      else if (left.get_type() == t_void || left.get_type() == t_undef)
-      {
-        error(op.loc, "Wrong type for operand.");
-      }
-
       else if (left.get_type() == t_string || right.get_type() == t_string)
       {
         if ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide))
