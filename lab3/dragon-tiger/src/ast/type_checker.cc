@@ -85,6 +85,7 @@ namespace ast
         }
         expr.value().accept(*this);
         type_e = expr.value().get_type();
+        decl.set_type(type_e);
         return;
       }
 
