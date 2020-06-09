@@ -95,17 +95,19 @@ namespace ast
       }
 
       // case without an explicit type given
-      Type type_e = t_undef;
+      Type type_e = t_void;
       optional<Expr &> expr = decl.get_expr();
       if (expr)
       {
         expr.value().accept(*this);
         type_e = expr.value().get_type();
-        if (type_e == t_void)
-        {
-          error(decl.loc, "Type t_void not allowed.");
-        }
+        decl.set_type(type_e);
       }
+      else
+      {
+        error(decl.loc, "Type t_void not allowed.");
+      }
+      
 
       if (type == t_undef && type_e == t_undef)
       {
@@ -152,6 +154,14 @@ namespace ast
       if ((left.get_type() != t_int || right.get_type() != t_int) && ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide)))
       {
         error(op.loc, "Wrong type for operand with this arithmetic expression.");
+      }
+      if (left.get_type() == t_void && right.get_type() == t_void)
+      {
+        if (op.op != o_eq)
+        {
+          utils::error(op.loc, "Can only test equality for void variables");
+        }
+        op.set_type(t_int);
       }
 
       op.set_type(t_int);
