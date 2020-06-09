@@ -95,22 +95,21 @@ namespace ast
       }
 
       // case without an explicit type given
-      Type type_e = t_undef;
+      Type type_e = t_void;
       optional<Expr &> expr = decl.get_expr();
-      if (expr)
+      if (!expr)
       {
-        expr.value().accept(*this);
-        type_e = expr.value().get_type();
-        if (type_e == t_void)
-        {
-          error(decl.loc, "Type t_void not allowed.");
-        }
+        utils::error(decl.loc, "Error: implicit type must have declaration.") ;
       }
+
+      expr.value().accept(*this);
+      type_e = expr.value().get_type();
 
       if (type == t_undef && type_e == t_undef)
       {
         error(decl.loc, "Unknown type for variable");
       }
+      
       if (type != t_undef && type_e != t_undef)
       {
         if (type == type_e)
@@ -144,7 +143,7 @@ namespace ast
         op.set_type(t_int);
       }
 
-      else if (left.get_type() == t_string || right.get_type() == t_string)
+      else if (left.get_type() == t_string && right.get_type() == t_string)
       {
         if ((op.op == o_plus) || (op.op == o_minus) || (op.op == o_times) || (op.op == o_divide))
           error(op.loc, "Wrong type for operand with this arithmetic expression.");
