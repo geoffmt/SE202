@@ -85,6 +85,7 @@ namespace ast
         }
         expr.value().accept(*this);
         type_e = expr.value().get_type();
+        return;
       }
 
       // case without an explicit type given
