@@ -73,61 +73,50 @@ namespace ast
 
     void TypeChecker::visit(VarDecl &decl)
     {
-      Type type = t_undef;
-      // case with explicit type in type_name field
-      if (decl.type_name)
+      Type type = t_void;
+      // case without explicit type in type_name field
+      if (!decl.type_name)
       {
-        std::string type_name = std::string(decl.type_name.value());
-
-        // check if type_n is a know type
-        if (type_name == "int")
+        Type type_e = t_void;
+        optional<Expr &> expr = decl.get_expr();
+        if (!expr)
         {
-          type = t_int;
+          utils::error(decl.loc, "Error: implicit type must have declaration.");
         }
-        else if (type_name == "string")
-        {
-          type = t_string;
-        }
-        else
-        {
-          error(decl.loc, "Incompatible type.");
-        }
+        expr.value().accept(*this);
+        type_e = expr.value().get_type();
       }
 
       // case without an explicit type given
-      Type type_e = t_void;
+      std::string type_name = std::string(decl.type_name.value());
+
+      // check if type_n is a know type
+      if (type_name == "int")
+      {
+        type = t_int;
+      }
+      else if (type_name == "string")
+      {
+        type = t_string;
+      }
+      else
+      {
+        error(decl.loc, "Incompatible type.");
+      }
+
       optional<Expr &> expr = decl.get_expr();
       if (!expr)
       {
-        utils::error(decl.loc, "Error: implicit type must have declaration.") ;
-      }
-
-      expr.value().accept(*this);
-      type_e = expr.value().get_type();
-
-      if (type == t_undef && type_e == t_undef)
-      {
-        error(decl.loc, "Unknown type for variable");
-      }
-      
-      if (type != t_undef && type_e != t_undef)
-      {
-        if (type == type_e)
-        {
-          decl.set_type(type);
-        }
-        else
-        {
-          error(decl.loc, "Two different types for variable.");
-        }
-      }
-      if (type != t_undef && type_e == t_undef)
-      {
         decl.set_type(type);
       }
-      if (type == t_undef && type_e != t_undef)
+      else
       {
-        decl.set_type(type_e);
+        expr.value().accept(*this);
+        if (type != expr.value().get_type())
+        {
+          utils::error(decl.loc, "Incompatible type.");
+        }
+        decl.set_type(type);
       }
     }
 
