@@ -6438,7 +6438,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile compile src/Makefile src/driver/Makefile src/runtime/posix/Makefile src/utils/Makefile"
+ac_config_files="$ac_config_files Makefile compile src/Makefile src/irgen/Makefile src/driver/Makefile src/runtime/posix/Makefile src/utils/Makefile"
 
 
 ac_config_commands="$ac_config_commands compile.mode"
@@ -7186,6 +7186,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "compile") CONFIG_FILES="$CONFIG_FILES compile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "src/irgen/Makefile") CONFIG_FILES="$CONFIG_FILES src/irgen/Makefile" ;;
     "src/driver/Makefile") CONFIG_FILES="$CONFIG_FILES src/driver/Makefile" ;;
     "src/runtime/posix/Makefile") CONFIG_FILES="$CONFIG_FILES src/runtime/posix/Makefile" ;;
     "src/utils/Makefile") CONFIG_FILES="$CONFIG_FILES src/utils/Makefile" ;;

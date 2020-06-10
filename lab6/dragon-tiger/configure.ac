@@ -30,6 +30,7 @@ AC_PATH_PROG([LLVM_OPT], [opt], [opt], [$LLVM_BINDIR/$PATH_SEPARATOR$PATH])
 AC_CONFIG_FILES([Makefile
                  compile
                  src/Makefile
+                 src/irgen/Makefile
                  src/driver/Makefile
                  src/runtime/posix/Makefile
                  src/utils/Makefile
