@@ -307,8 +307,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = utils driver runtime/posix
-EXTRA_DIST = parser
+SUBDIRS = utils irgen driver runtime/posix
+EXTRA_DISTi = parser
 all: all-recursive
 
 .SUFFIXES:

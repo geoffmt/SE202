@@ -56,6 +56,12 @@ class IRGenerator : public ConstASTValueVisitor {
   // Frame of the current function.
   llvm::Value *frame;
 
+  // Generate the frame of the current function
+  void generate_frame();
+
+  std::pair<llvm::StructType *, llvm::Value *> frame_up(int levels);
+
+  llvm::Value * generate_vardecl(const VarDecl &decl);
   // Generate the LLVM IR code corresponding to a function
   // declaration. If inner function declarations are encountered,
   // they will be stored into pending_func_bodies for later
@@ -70,27 +76,7 @@ class IRGenerator : public ConstASTValueVisitor {
   // otherwise automatic naming (%0, %1, etc.) will be used.
   llvm::Value *alloca_in_entry(llvm::Type *Ty, const std::string &name = "");
 
-  // Generate code for a variable declaration. If the variable
-  // escapes, it will find its position in the current
-  // frame. Otherwise, it will create a new alloca
-  // in the entry block of the function to hold the
-  // variable content.
-  llvm::Value *generate_vardecl(const VarDecl &decl);
-
-  // Generate the frame for the current function declaration.
-  // This creates the appropriate frame type and create a new
-  // alloca in the entry block of the function to hold the
-  // frame content.
-  void generate_frame();
-
-  // Return the dynamic frame 0 or more levels above the current
-  // one (0 corresponds to the current frame). The frame type
-  // and the frame value are returned.
-  std::pair<llvm::StructType *, llvm::Value *> frame_up(int levels);
-
-  // Return the address of a given identifier. It will get up
-  // the frames if needed if the identifier has been declared
-  // in an outer scope.
+  // Return the address of a given identifier.
   llvm::Value *address_of(const Identifier &id);
 
 public:
