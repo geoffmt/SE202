@@ -29,19 +29,41 @@ void __flush(void) {
 const char *__getchar(void) {
   char * s = (char *) malloc(sizeof(char));
   *s = getchar();
+  if(*s == EOF){
+    return "";
+  }
   return s;  
 }
 
-int32_t __ord(const char *s) {
-  error("UNIMPLEMENTED __ord");
+int32_t __ord(const char *s){
+  unsigned char c = *s;
+  if(c == '\0'){
+    return -1;
+  }
+  return (int32_t) c;
 }
 
 const char *__chr(int32_t i) {
-  error("UNIMPLEMENTED __chr");
+  char * s = (char *) malloc(sizeof(char));
+  if (i == 0) {
+    return "";
+  }
+  if (i<0 || i>255){
+    error("char out of range [0;255]");
+  }
+  *s = (char) i%128;
+  return s;
 }
 
 int32_t __size(const char *s) {
-  error("UNIMPLEMENTED __size");
+  int32_t i = 0;
+  while (s[i] != '\0') {
+    i++;
+    if (i == 0) {
+      error("Maximal size reached.");
+    }
+  }
+  return i;
 }
 
 const char *__substring(const char *s, int32_t first, int32_t length) {
