@@ -27,7 +27,9 @@ void __flush(void) {
 }
 
 const char *__getchar(void) {
-  error("UNIMPLEMENTED __getchar");
+  char * s = (char *) malloc(sizeof(char));
+  *s = getchar();
+  return s;  
 }
 
 int32_t __ord(const char *s) {
