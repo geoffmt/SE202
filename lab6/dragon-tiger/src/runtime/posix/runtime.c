@@ -67,25 +67,63 @@ int32_t __size(const char *s) {
 }
 
 const char *__substring(const char *s, int32_t first, int32_t length) {
-  error("UNIMPLEMENTED __substring");
+  char * substr = (char *) malloc(sizeof(char) * (length + 1));
+  int32_t size = __size(s); // get length the string containing substring
+  uint32_t idx = 0;
+
+  if (first < 0 || length < 0 || (first + length) > size){
+    error("arguments incorrect or out of bounds.");
+  }
+
+  while (idx < length) {
+    substr[idx] = s[first + idx];
+    idx++;
+  }
+
+  return substr;
 }
 
 const char *__concat(const char *s1, const char *s2) {
-  error("UNIMPLEMENTED __concat");
+  int32_t size_1 = __size(s1);
+  int32_t size_2 = __size(s2);
+  int32_t size_total = size_1 + size_2;
+  int32_t idx = 0;
+  char * s3 = (char *) malloc(sizeof(char)*(size_total + 1));
+
+  while (idx < size_1) {
+    s3[idx] = s1[idx];
+    idx++;
+  }
+
+  while (idx < size_total) {
+    s3[idx] = s2[idx - size_1];
+    idx++;
+  }
+
+  return s3;
 }
 
 int32_t __strcmp(const char *s1, const char *s2) {
-  error("UNIMPLEMENTED __strcmp");
+  int cmp = strcmp(s1, s2);
+
+  if (cmp < 0) {
+    return -1;
+  } else if (cmp > 0) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 int32_t __streq(const char *s1, const char *s2) {
-  error("UNIMPLEMENTED __streq");
+  int32_t res = strcmp(s1, s2);
+  return (res == 0);
 }
 
 int32_t __not(int32_t i) {
-  error("UNIMPLEMENTED __not");
+  return !i;
 }
 
 void __exit(int32_t c) {
-  error("UNIMPLEMENTED __exit");
+  exit(c);
 }
